@@ -6,14 +6,34 @@ export default async function handler(req, res) {
 
   try {
     const paymentIntent = stripe.paymentRequest({
-  country: 'US',                // ✅ Must be US or supported
+  country: 'US',
   currency: 'usd',
   total: {
-    label: 'Test Payment',
-    amount: 1000,               // $10
+    label: 'Total',
+    amount: 1000,
   },
   requestPayerName: true,
   requestPayerEmail: true,
+  supportedPaymentMethods: [
+    {
+      supportedMethods: 'google_pay',
+      data: {
+        environment: 'TEST',
+        apiVersion: 2,
+        apiVersionMinor: 0,
+        allowedPaymentMethods: ['CARD', 'TOKENIZED_CARD'],
+        merchantInfo: {
+          merchantName: 'Demo Merchant',
+        },
+        allowedCardNetworks: ['VISA', 'MASTERCARD'],
+        allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+        billingAddressRequired: true,
+        billingAddressParameters: {
+          format: 'FULL',
+        },
+      },
+    },
+  ]
 });
     res.status(200).json({ clientSecret: paymentIntent.client_secret });
   } catch (err) {
