@@ -7,7 +7,9 @@
 </head>
 <body>
   <h2>Google Pay with Stripe</h2>
+  <div id="gpay-status" style="margin-top: 10px; font-weight: bold;"></div>
   <button id="payment-request-button">Loading...</button>
+
 
   <script>
     const stripe = Stripe('pk_test_51M2DPEBHpx84uhbDdsoTR8ibKUb1BWFYGx5dzBtf2beR4GgjrrV6HgmueAednUIVpD2XCSJGe21Jw3JoAeTbc0Ha00kPsQaOis');
@@ -28,16 +30,21 @@
       paymentRequest,
     });
 
-    paymentRequest.canMakePayment().then(function(result) {
-        console.log("result")
-        console.log(result)
-      if (result) {
-        prButton.mount('#payment-request-button');
-      } else {
-        document.getElementById('payment-request-button').style.display = 'none';
-      }
-    });
+  paymentRequest.canMakePayment().then(function(result) {
+  console.log("result", result);
 
+  const statusDiv = document.getElementById('gpay-status');
+
+  if (result && result.googlePay) {
+    prButton.mount('#payment-request-button');
+    statusDiv.textContent = '✅ Google Pay is available!';
+    statusDiv.style.color = 'green';
+  } else {
+    document.getElementById('payment-request-button').style.display = 'none';
+    statusDiv.textContent = '❌ Google Pay is NOT available';
+    statusDiv.style.color = 'red';
+  }
+});
     paymentRequest.on('paymentmethod', async (ev) => {
       const res = await fetch('/api/create-payment-intent', {
         method: 'POST',
