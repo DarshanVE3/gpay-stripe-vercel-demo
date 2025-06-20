@@ -29,6 +29,8 @@
     });
 
     paymentRequest.canMakePayment().then(function(result) {
+        console.log("result")
+        console.log(result)
       if (result) {
         prButton.mount('#payment-request-button');
       } else {
