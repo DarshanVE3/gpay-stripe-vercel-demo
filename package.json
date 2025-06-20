@@ -1,0 +1,9 @@
+{
+  "name": "gpay-stripe-demo",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "stripe": "^12.0.0"
+  }
+}

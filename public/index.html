@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GPay Stripe Demo</title>
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+  <h2>Google Pay with Stripe</h2>
+  <button id="payment-request-button">Loading...</button>
+
+  <script>
+    const stripe = Stripe('pk_test_51M2DPEBHpx84uhbDdsoTR8ibKUb1BWFYGx5dzBtf2beR4GgjrrV6HgmueAednUIVpD2XCSJGe21Jw3JoAeTbc0Ha00kPsQaOis');
+
+    const paymentRequest = stripe.paymentRequest({
+      country: 'US',
+      currency: 'usd',
+      total: {
+        label: 'Test Payment',
+        amount: 1000, // $10
+      },
+      requestPayerName: true,
+      requestPayerEmail: true,
+    });
+
+    const elements = stripe.elements();
+    const prButton = elements.create('paymentRequestButton', {
+      paymentRequest,
+    });
+
+    paymentRequest.canMakePayment().then(function(result) {
+      if (result) {
+        prButton.mount('#payment-request-button');
+      } else {
+        document.getElementById('payment-request-button').style.display = 'none';
+      }
+    });
+
+    paymentRequest.on('paymentmethod', async (ev) => {
+      const res = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: 1000 }),
+      });
+
+      const { clientSecret } = await res.json();
+
+      const { error } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: ev.paymentMethod.id,
+      });
+
+      if (error) {
+        ev.complete('fail');
+        alert(error.message);
+      } else {
+        ev.complete('success');
+        alert('Payment successful!');
+      }
+    });
+  </script>
+</body>
+</html>
