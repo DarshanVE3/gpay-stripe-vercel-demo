@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   const { amount } = req.body;
 
   try {
-    const paymentRequest = stripe.paymentRequest({
+    const paymentIntent = stripe.paymentRequest({
   country: 'US',                // ✅ Must be US or supported
   currency: 'usd',
   total: {
